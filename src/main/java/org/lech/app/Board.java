@@ -11,6 +11,8 @@ import java.util.Random;
 
 public class Board extends JPanel implements ActionListener, KeyListener {
 
+    // controls how many levels are in the game
+    private static final int LEVELS_AMOUNT = 10;
     // controls the delay between each tick in ms
     private final int DELAY = 25;
     // controls the size of the board
@@ -19,6 +21,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public static final int COLUMNS = 18;
     // controls how many coins appear on the board
     public static final int NUM_COINS = 5;
+    public static final int BASE_SCORE_TARGET = 200;
+    public static final int BASE_ENEMIES_AMOUNT = 1;
     // suppress serialization warning
     private static final long serialVersionUID = 490905409104883233L;
 
@@ -28,7 +32,15 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     // objects that appear on the game board
     private Player player;
     private ArrayList<Coin> coins;
-    private Enemy enemy;
+    private final java.util.List<Enemy> enemies = new ArrayList<>();
+    private int enemyDelayCounter = 0;
+    private boolean levelCompleted;
+    private int levelCompletedDisplayCounter = 0;
+    private int level = 1;
+    private boolean gameCompleted;
+    private boolean levelStart = true;
+    private int levelStartDisplayCounter = 0;
+
 
     public Board() {
         // set the game board size
@@ -39,7 +51,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         // initialize the game state
         player = new Player();
         coins = populateCoins();
-        enemy = new Enemy();
+        //TODO: create Enemy Factory
+        for (int i = 0; i < BASE_ENEMIES_AMOUNT; i++) {
+            enemies.add(new Enemy());
+        }
 
         // this timer will call the actionPerformed() method every DELAY ms
         timer = new Timer(DELAY, this);
@@ -54,9 +69,41 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
         // prevent the player from disappearing off the board
         player.tick();
-
         // give the player points for collecting coins
         collectCoins();
+
+        if (levelStart) {
+            levelStartDisplayCounter++;
+            if (levelStartDisplayCounter > 80) { // 2 seconds
+                levelStartDisplayCounter = 0;
+                levelStart = false;
+                enemyDelayCounter = 0;
+            }
+        }
+
+        int targetScore = BASE_SCORE_TARGET * level;
+        if (player.getScore() >= targetScore && level == LEVELS_AMOUNT) {
+            gameCompleted = true;
+            enemyDelayCounter = 0; //reset counter so it wont overflow integer
+        } else if (player.getScore() >= targetScore) {
+            levelCompleted = true;
+            levelCompletedDisplayCounter++;
+            if (levelCompletedDisplayCounter > 80) { // 2 seconds
+                levelCompleted = false;
+                player.setScore(0);
+                enemyDelayCounter = 0;
+                levelCompletedDisplayCounter = 0;
+                level++;
+                levelStart = true;
+                enemies.add(new Enemy());
+            }
+        }
+
+        enemyDelayCounter++;
+        if (enemyDelayCounter == 20 && !levelCompleted && !gameCompleted && !levelStart) {
+            enemies.forEach(Enemy::tick);
+            enemyDelayCounter = 0;
+        }
         enemyCollision();
 
         // add more coins if all collected
@@ -72,20 +119,32 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // when calling g.drawImage() we can use "this" for the ImageObserver 
-        // because Component implements the ImageObserver interface, and JPanel 
-        // extends from Component. So "this" Board instance, as a Component, can 
+        // when calling g.drawImage() we can use "this" for the ImageObserver
+        // because Component implements the ImageObserver interface, and JPanel
+        // extends from Component. So "this" Board instance, as a Component, can
         // react to imageUpdate() events triggered by g.drawImage()
 
         // draw our graphics.
         drawBackground(g);
         drawScore(g);
+        //TODO: draw energy
         for (Coin coin : coins) {
             coin.draw(g, this);
         }
         player.draw(g, this);
-        enemy.draw(g, this);
+        enemies.forEach(enemy -> enemy.draw(g, this));
 
+        if (levelCompleted) {
+            drawMessage(g, "Level completed");
+        }
+
+        if (gameCompleted) {
+            drawMessage(g, "Game completed. You are awesome");
+        }
+
+        if (levelStart) {
+            drawMessage(g, "Level " + level);
+        }
         // this smooths out animations on some systems
         Toolkit.getDefaultToolkit().sync();
     }
@@ -98,7 +157,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         // react to key down events
-        player.keyPressed(e);
+        if (!levelCompleted && !gameCompleted && !levelStart) {
+            player.keyPressed(e);
+        }
     }
 
     @Override
@@ -114,12 +175,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
                 // only color every other tile
                 if ((row + col) % 2 == 1) {
                     // draw a square tile at the current row/column position
-                    g.fillRect(
-                            col * TILE_SIZE,
-                            row * TILE_SIZE,
-                            TILE_SIZE,
-                            TILE_SIZE
-                    );
+                    g.fillRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
                 }
             }
         }
@@ -127,20 +183,14 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private void drawScore(Graphics g) {
         // set the text to be displayed
-        String text = "$" + player.getScore();
+        String text = "$" + player.getScore()  + "/" +  BASE_SCORE_TARGET * level;
         // we need to cast the Graphics to Graphics2D to draw nicer text
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(
-                RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2d.setRenderingHint(
-                RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHint(
-                RenderingHints.KEY_FRACTIONALMETRICS,
-                RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         // set the text color and font
-        g2d.setColor(new Color(30, 201, 139));
+        g2d.setColor(new Color(16, 9, 219));
         g2d.setFont(new Font("Lato", Font.BOLD, 25));
         // draw the score in the bottom center of the screen
         // https://stackoverflow.com/a/27740330/4655368
@@ -183,6 +233,13 @@ public class Board extends JPanel implements ActionListener, KeyListener {
                 player.addScore(100);
                 collectedCoins.add(coin);
             }
+            for (Enemy enemy : enemies) {
+                if (enemy.getPos().equals(coin.getPos())) {
+//                    player.subtractScore(100);
+                    collectedCoins.add(coin);
+                }
+            }
+
         }
         // remove collected coins from the board
         coins.removeAll(collectedCoins);
@@ -190,12 +247,38 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private void enemyCollision() {
 
-        //TODO: remove points only once, not all the time while player is standing
-
-        // if the player is on the same tile as a enemy, remove point
-        if (player.getPos().equals(enemy.getPos())) {
-            // remove the player some points because enemy
-            player.subtractScore(100);
+        // if the player is on the same tile as enemy, remove point
+        for (Enemy enemy : enemies) {
+            if (player.getPos().equals(enemy.getPos())) {
+                // remove the player some points because enemy
+                player.subtractScore(100);
+                player.resetPos();
+            }
         }
     }
+
+    private void drawMessage(Graphics g, String text) {
+        // we need to cast the Graphics to Graphics2D to draw nicer text
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        // set the text color and font
+        g2d.setColor(new Color(16, 9, 219));
+        g2d.setFont(new Font("Lato", Font.BOLD, 50));
+        // draw the score in the center of the screen
+        // https://stackoverflow.com/a/27740330/4655368
+        FontMetrics metrics = g2d.getFontMetrics(g2d.getFont());
+        // the text will be contained within this rectangle.
+        // here I've sized it to be the entire bottom row of board tiles
+        Rectangle rect = new Rectangle(0, TILE_SIZE * (ROWS / 2 - 1), TILE_SIZE * COLUMNS, TILE_SIZE);
+        // determine the x coordinate for the text
+        int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
+        // determine the y coordinate for the text
+        // (note we add the ascent, as in java 2d 0 is top of the screen)
+        int y = rect.y + ((rect.height - metrics.getHeight()) / 2) + metrics.getAscent();
+        // draw the string
+        g2d.drawString(text, x, y);
+    }
+
 }

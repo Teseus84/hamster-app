@@ -7,23 +7,26 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Random;
 
 public class Enemy {
 
-    // image that represents the player's position on the board
+    // image that represents the enemy position on the board
     private BufferedImage image;
-    // current position of the player on the board grid
+    // current position of the enemy on the board grid
     private Point pos;
-    // keep track of the player's score
-//    private int score;
 
     public Enemy() {
         // load the assets
         loadImage();
 
+        Random rand = new Random();
+        int startXPos = rand.nextInt(2, Board.COLUMNS - 1);
+        int startYPos = rand.nextInt(2, Board.ROWS - 1);
+
         // initialize the state
-        pos = new Point(Board.COLUMNS - 1, Board.ROWS - 1);
-//        score = 0;
+        pos = new Point(startXPos, startYPos);
+
     }
 
     private void loadImage() {
@@ -75,17 +78,34 @@ public class Enemy {
         // this gets called once every tick, before the repainting process happens.
         // so we can do anything needed in here to update the state of the player.
 
+        Random rand = new Random();
+        int direction = rand.nextInt(4);
+        System.out.println("direction: " + direction);
+
+        if (direction == 0) {
+            pos.translate(0, -1);
+        }
+        if (direction == 1) {
+            pos.translate(0, 1);
+        }
+        if (direction == 2) {
+            pos.translate(1, 0);
+        }
+        if (direction == 3) {
+            pos.translate(-1, 0);
+        }
+
         // prevent the player from moving off the edge of the board sideways
         if (pos.x < 0) {
-            pos.x = 0;
+            pos.x = 1;
         } else if (pos.x >= Board.COLUMNS) {
-            pos.x = Board.COLUMNS - 1;
+            pos.x = Board.COLUMNS - 2;
         }
         // prevent the player from moving off the edge of the board vertically
         if (pos.y < 0) {
-            pos.y = 0;
+            pos.y = 1;
         } else if (pos.y >= Board.ROWS) {
-            pos.y = Board.ROWS - 1;
+            pos.y = Board.ROWS - 2;
         }
     }
 
