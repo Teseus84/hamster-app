@@ -29,6 +29,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private Player player;
     private ArrayList<Coin> coins;
     private Enemy enemy;
+    int enemyDelayCounter = 0;
 
     public Board() {
         // set the game board size
@@ -57,6 +58,13 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
         // give the player points for collecting coins
         collectCoins();
+
+        enemyDelayCounter++;
+        if (enemyDelayCounter == 40) {
+
+            enemy.tick();
+            enemyDelayCounter = 0;
+        }
         enemyCollision();
 
         // add more coins if all collected
@@ -190,12 +198,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private void enemyCollision() {
 
-        //TODO: remove points only once, not all the time while player is standing
-
-        // if the player is on the same tile as a enemy, remove point
+        // if the player is on the same tile as enemy, remove point
         if (player.getPos().equals(enemy.getPos())) {
             // remove the player some points because enemy
             player.subtractScore(100);
+            player.resetPos();
         }
     }
 }

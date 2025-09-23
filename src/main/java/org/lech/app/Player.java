@@ -43,18 +43,18 @@ public class Player {
         // this is also where we translate board grid position into a canvas pixel
         // position by multiplying by the tile size.
         g.drawImage(
-            image, 
-            pos.x * Board.TILE_SIZE, 
-            pos.y * Board.TILE_SIZE, 
-            observer
+                image,
+                pos.x * Board.TILE_SIZE,
+                pos.y * Board.TILE_SIZE,
+                observer
         );
     }
-    
+
     public void keyPressed(KeyEvent e) {
         // every keyboard get has a certain code. get the value of that code from the
         // keyboard event so that we can compare it to KeyEvent constants
         int key = e.getKeyCode();
-        
+
         // depending on which arrow key was pressed, we're going to move the player by
         // one whole tile for this input
         if (key == KeyEvent.VK_UP) {
@@ -103,6 +103,10 @@ public class Player {
 
     public Point getPos() {
         return pos;
+    }
+
+    public void resetPos() {
+        pos = new Point(0, 0);
     }
 
 }

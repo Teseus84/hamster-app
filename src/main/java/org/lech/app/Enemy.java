@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Random;
 
 public class Enemy {
 
@@ -74,6 +75,24 @@ public class Enemy {
     public void tick() {
         // this gets called once every tick, before the repainting process happens.
         // so we can do anything needed in here to update the state of the player.
+        pos.translate(0, -1);
+
+        Random rand = new Random();
+        int direction = rand.nextInt(4);
+        System.out.println("direction: " + direction);
+
+        if (direction == 0) {
+            pos.translate(0, -1);
+        }
+        if (direction == 1) {
+            pos.translate(1, 0);
+        }
+        if (direction == 2) {
+            pos.translate(0, 1);
+        }
+        if (direction == 3) {
+            pos.translate(-1, 0);
+        }
 
         // prevent the player from moving off the edge of the board sideways
         if (pos.x < 0) {
