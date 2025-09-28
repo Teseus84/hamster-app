@@ -75,7 +75,6 @@ public class Enemy {
     public void tick() {
         // this gets called once every tick, before the repainting process happens.
         // so we can do anything needed in here to update the state of the player.
-        pos.translate(0, -1);
 
         Random rand = new Random();
         int direction = rand.nextInt(4);
@@ -85,10 +84,10 @@ public class Enemy {
             pos.translate(0, -1);
         }
         if (direction == 1) {
-            pos.translate(1, 0);
+            pos.translate(0, 1);
         }
         if (direction == 2) {
-            pos.translate(0, 1);
+            pos.translate(1, 0);
         }
         if (direction == 3) {
             pos.translate(-1, 0);
@@ -96,15 +95,15 @@ public class Enemy {
 
         // prevent the player from moving off the edge of the board sideways
         if (pos.x < 0) {
-            pos.x = 0;
+            pos.x = 1;
         } else if (pos.x >= Board.COLUMNS) {
-            pos.x = Board.COLUMNS - 1;
+            pos.x = Board.COLUMNS - 2;
         }
         // prevent the player from moving off the edge of the board vertically
         if (pos.y < 0) {
-            pos.y = 0;
+            pos.y = 1;
         } else if (pos.y >= Board.ROWS) {
-            pos.y = Board.ROWS - 1;
+            pos.y = Board.ROWS - 2;
         }
     }
 
