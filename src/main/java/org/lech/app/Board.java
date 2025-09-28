@@ -29,6 +29,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private Player player;
     private ArrayList<Coin> coins;
     private Enemy enemy;
+    private Enemy enemy2;
     int enemyDelayCounter = 0;
 
     public Board() {
@@ -41,6 +42,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         player = new Player();
         coins = populateCoins();
         enemy = new Enemy();
+        enemy2 = new Enemy();
 
         // this timer will call the actionPerformed() method every DELAY ms
         timer = new Timer(DELAY, this);
@@ -60,9 +62,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         collectCoins();
 
         enemyDelayCounter++;
-        if (enemyDelayCounter == 40) {
-
+        if (enemyDelayCounter == 20) {
             enemy.tick();
+            enemy2.tick();
             enemyDelayCounter = 0;
         }
         enemyCollision();
@@ -93,6 +95,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         }
         player.draw(g, this);
         enemy.draw(g, this);
+        enemy2.draw(g, this);
 
         // this smooths out animations on some systems
         Toolkit.getDefaultToolkit().sync();
@@ -189,6 +192,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             if (player.getPos().equals(coin.getPos())) {
                 // give the player some points for picking this up
                 player.addScore(100);
+                collectedCoins.add(coin);
+            }
+
+            if (enemy.getPos().equals(coin.getPos()) || enemy2.getPos().equals(coin.getPos())) {
+                player.subtractScore(100);
                 collectedCoins.add(coin);
             }
         }
