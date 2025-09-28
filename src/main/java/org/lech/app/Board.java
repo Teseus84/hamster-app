@@ -207,7 +207,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private void enemyCollision() {
 
         // if the player is on the same tile as enemy, remove point
-        if (player.getPos().equals(enemy.getPos())) {
+        if (player.getPos().equals(enemy.getPos()) || player.getPos().equals(enemy2.getPos())) {
             // remove the player some points because enemy
             player.subtractScore(100);
             player.resetPos();
