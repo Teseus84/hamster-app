@@ -28,8 +28,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     // objects that appear on the game board
     private Player player;
     private ArrayList<Coin> coins;
-    private Enemy enemy;
-    private Enemy enemy2;
+    private final java.util.List<Enemy> enemies = new ArrayList<>();
     int enemyDelayCounter = 0;
 
     public Board() {
@@ -41,8 +40,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         // initialize the game state
         player = new Player();
         coins = populateCoins();
-        enemy = new Enemy();
-        enemy2 = new Enemy();
+        //TODO: create Enemy Factory
+        for (int i = 0; i < 4; i++) {
+            enemies.add(new Enemy());
+        }
 
         // this timer will call the actionPerformed() method every DELAY ms
         timer = new Timer(DELAY, this);
@@ -63,8 +64,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
         enemyDelayCounter++;
         if (enemyDelayCounter == 20) {
-            enemy.tick();
-            enemy2.tick();
+            enemies.forEach(Enemy::tick);
             enemyDelayCounter = 0;
         }
         enemyCollision();
@@ -82,9 +82,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // when calling g.drawImage() we can use "this" for the ImageObserver 
-        // because Component implements the ImageObserver interface, and JPanel 
-        // extends from Component. So "this" Board instance, as a Component, can 
+        // when calling g.drawImage() we can use "this" for the ImageObserver
+        // because Component implements the ImageObserver interface, and JPanel
+        // extends from Component. So "this" Board instance, as a Component, can
         // react to imageUpdate() events triggered by g.drawImage()
 
         // draw our graphics.
@@ -94,8 +94,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             coin.draw(g, this);
         }
         player.draw(g, this);
-        enemy.draw(g, this);
-        enemy2.draw(g, this);
+        enemies.forEach(enemy -> enemy.draw(g, this));
 
         // this smooths out animations on some systems
         Toolkit.getDefaultToolkit().sync();
@@ -194,11 +193,13 @@ public class Board extends JPanel implements ActionListener, KeyListener {
                 player.addScore(100);
                 collectedCoins.add(coin);
             }
-
-            if (enemy.getPos().equals(coin.getPos()) || enemy2.getPos().equals(coin.getPos())) {
-                player.subtractScore(100);
-                collectedCoins.add(coin);
+            for (Enemy enemy : enemies) {
+                if (enemy.getPos().equals(coin.getPos())) {
+                    player.subtractScore(100);
+                    collectedCoins.add(coin);
+                }
             }
+
         }
         // remove collected coins from the board
         coins.removeAll(collectedCoins);
@@ -207,10 +208,12 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private void enemyCollision() {
 
         // if the player is on the same tile as enemy, remove point
-        if (player.getPos().equals(enemy.getPos()) || player.getPos().equals(enemy2.getPos())) {
-            // remove the player some points because enemy
-            player.subtractScore(100);
-            player.resetPos();
+        for (Enemy enemy : enemies) {
+            if (player.getPos().equals(enemy.getPos())) {
+                // remove the player some points because enemy
+                player.subtractScore(100);
+                player.resetPos();
+            }
         }
     }
 }
