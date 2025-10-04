@@ -11,20 +11,22 @@ import java.util.Random;
 
 public class Enemy {
 
-    // image that represents the player's position on the board
+    // image that represents the enemy position on the board
     private BufferedImage image;
-    // current position of the player on the board grid
+    // current position of the enemy on the board grid
     private Point pos;
-    // keep track of the player's score
-//    private int score;
 
     public Enemy() {
         // load the assets
         loadImage();
 
+        Random rand = new Random();
+        int startXPos = rand.nextInt(2, Board.COLUMNS - 1);
+        int startYPos = rand.nextInt(2, Board.ROWS - 1);
+
         // initialize the state
-        pos = new Point(Board.COLUMNS - 1, Board.ROWS - 1);
-//        score = 0;
+        pos = new Point(startXPos, startYPos);
+
     }
 
     private void loadImage() {
