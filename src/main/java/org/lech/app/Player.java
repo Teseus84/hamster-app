@@ -89,8 +89,8 @@ public class Player {
         }
     }
 
-    public String getScore() {
-        return String.valueOf(score);
+    public int getScore() {
+        return score;
     }
 
     public void addScore(int amount) {
