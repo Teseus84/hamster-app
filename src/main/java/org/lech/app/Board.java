@@ -62,7 +62,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         // give the player points for collecting coins
         collectCoins();
 
-        if (player.getScore() >= 300) {
+        if (player.getScore() >= 500) {
             levelCompleted = true;
         }
 
@@ -243,14 +243,14 @@ public class Board extends JPanel implements ActionListener, KeyListener {
                 RenderingHints.KEY_FRACTIONALMETRICS,
                 RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         // set the text color and font
-        g2d.setColor(new Color(30, 201, 139));
-        g2d.setFont(new Font("Lato", Font.BOLD, 25));
-        // draw the score in the bottom center of the screen
+        g2d.setColor(new Color(0, 255, 90));
+        g2d.setFont(new Font("Lato", Font.BOLD, 50));
+        // draw the score in the center of the screen
         // https://stackoverflow.com/a/27740330/4655368
         FontMetrics metrics = g2d.getFontMetrics(g2d.getFont());
         // the text will be contained within this rectangle.
         // here I've sized it to be the entire bottom row of board tiles
-        Rectangle rect = new Rectangle(0, TILE_SIZE * (ROWS / 2), TILE_SIZE * COLUMNS, TILE_SIZE);
+        Rectangle rect = new Rectangle(0, TILE_SIZE * (ROWS / 2 - 1), TILE_SIZE * COLUMNS, TILE_SIZE);
         // determine the x coordinate for the text
         int x = rect.x + (rect.width - metrics.stringWidth(text)) / 2;
         // determine the y coordinate for the text
@@ -259,4 +259,5 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         // draw the string
         g2d.drawString(text, x, y);
     }
+
 }
