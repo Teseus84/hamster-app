@@ -31,6 +31,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private final java.util.List<Enemy> enemies = new ArrayList<>();
     private int enemyDelayCounter = 0;
     private boolean levelCompleted;
+    private int levelCompletedDisplayCounter = 0;
 
     public Board() {
         // set the game board size
@@ -62,8 +63,17 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         // give the player points for collecting coins
         collectCoins();
 
+
         if (player.getScore() >= 500) {
             levelCompleted = true;
+            levelCompletedDisplayCounter++;
+            if (levelCompletedDisplayCounter > 100) {
+                levelCompleted = false;
+                player.setScore(0);
+                enemyDelayCounter = 0;
+                levelCompletedDisplayCounter = 0;
+            }
+
         }
 
         enemyDelayCounter++;
@@ -135,12 +145,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
                 // only color every other tile
                 if ((row + col) % 2 == 1) {
                     // draw a square tile at the current row/column position
-                    g.fillRect(
-                            col * TILE_SIZE,
-                            row * TILE_SIZE,
-                            TILE_SIZE,
-                            TILE_SIZE
-                    );
+                    g.fillRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
                 }
             }
         }
@@ -151,15 +156,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         String text = "$" + player.getScore();
         // we need to cast the Graphics to Graphics2D to draw nicer text
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(
-                RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2d.setRenderingHint(
-                RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHint(
-                RenderingHints.KEY_FRACTIONALMETRICS,
-                RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         // set the text color and font
         g2d.setColor(new Color(30, 201, 139));
         g2d.setFont(new Font("Lato", Font.BOLD, 25));
@@ -206,7 +205,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             }
             for (Enemy enemy : enemies) {
                 if (enemy.getPos().equals(coin.getPos())) {
-                    player.subtractScore(100);
+//                    player.subtractScore(100);
                     collectedCoins.add(coin);
                 }
             }
@@ -233,15 +232,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         String text = "Level completed !!!";
         // we need to cast the Graphics to Graphics2D to draw nicer text
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(
-                RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2d.setRenderingHint(
-                RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHint(
-                RenderingHints.KEY_FRACTIONALMETRICS,
-                RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         // set the text color and font
         g2d.setColor(new Color(0, 255, 90));
         g2d.setFont(new Font("Lato", Font.BOLD, 50));
