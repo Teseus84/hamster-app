@@ -19,6 +19,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public static final int COLUMNS = 18;
     // controls how many coins appear on the board
     public static final int NUM_COINS = 5;
+    public static final int BASE_SCORE_TARGET = 200;
+    public static final int BASE_ENEMIES_AMOUNT = 1;
     // suppress serialization warning
     private static final long serialVersionUID = 490905409104883233L;
 
@@ -32,6 +34,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private int enemyDelayCounter = 0;
     private boolean levelCompleted;
     private int levelCompletedDisplayCounter = 0;
+    private int level = 1;
 
     public Board() {
         // set the game board size
@@ -43,7 +46,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         player = new Player();
         coins = populateCoins();
         //TODO: create Enemy Factory
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < BASE_ENEMIES_AMOUNT; i++) {
             enemies.add(new Enemy());
         }
 
@@ -64,14 +67,16 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         collectCoins();
 
 
-        if (player.getScore() >= 500) {
+        if (player.getScore() >= BASE_SCORE_TARGET * level) {
             levelCompleted = true;
             levelCompletedDisplayCounter++;
-            if (levelCompletedDisplayCounter > 100) {
+            if (levelCompletedDisplayCounter > 100) { // 2,5 seconds
                 levelCompleted = false;
                 player.setScore(0);
                 enemyDelayCounter = 0;
                 levelCompletedDisplayCounter = 0;
+                level++;
+                enemies.add(new Enemy());
             }
 
         }
