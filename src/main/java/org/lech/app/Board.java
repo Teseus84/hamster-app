@@ -38,6 +38,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private int levelCompletedDisplayCounter = 0;
     private int level = 1;
     private boolean gameCompleted;
+    private boolean levelStart = true;
+    private int levelStartDisplayCounter = 0;
 
 
     public Board() {
@@ -70,9 +72,19 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         // give the player points for collecting coins
         collectCoins();
 
-        if (player.getScore() >= BASE_SCORE_TARGET * level && level + 1 == LEVELS_AMOUNT) {
+        if (levelStart) {
+            levelStartDisplayCounter++;
+            if (levelStartDisplayCounter > 80) { // 2 seconds
+                levelStartDisplayCounter = 0;
+                levelStart = false;
+                enemyDelayCounter = 0;
+            }
+        }
+
+        int targetScore = BASE_SCORE_TARGET * level;
+        if (player.getScore() >= targetScore && level == LEVELS_AMOUNT) {
             gameCompleted = true;
-        } else if (player.getScore() >= BASE_SCORE_TARGET * level) {
+        } else if (player.getScore() >= targetScore) {
             levelCompleted = true;
             levelCompletedDisplayCounter++;
             if (levelCompletedDisplayCounter > 80) { // 2 seconds
@@ -81,12 +93,13 @@ public class Board extends JPanel implements ActionListener, KeyListener {
                 enemyDelayCounter = 0;
                 levelCompletedDisplayCounter = 0;
                 level++;
+                levelStart = true;
                 enemies.add(new Enemy());
             }
         }
 
         enemyDelayCounter++;
-        if (enemyDelayCounter == 20 && !levelCompleted && !gameCompleted) {
+        if (enemyDelayCounter == 20 && !levelCompleted && !gameCompleted && !levelStart) {
             enemies.forEach(Enemy::tick);
             enemyDelayCounter = 0;
         }
@@ -127,6 +140,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         if (gameCompleted) {
             drawMessage(g, "Game completed. You are awesome");
         }
+
+        if (levelStart) {
+            drawMessage(g, "Level " + level);
+        }
         // this smooths out animations on some systems
         Toolkit.getDefaultToolkit().sync();
     }
@@ -139,7 +156,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         // react to key down events
-        if (!levelCompleted && !gameCompleted) {
+        if (!levelCompleted && !gameCompleted && !levelStart) {
             player.keyPressed(e);
         }
     }
