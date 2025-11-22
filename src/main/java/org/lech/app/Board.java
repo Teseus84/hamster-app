@@ -11,6 +11,8 @@ import java.util.Random;
 
 public class Board extends JPanel implements ActionListener, KeyListener {
 
+    // controls how many levels are in the game
+    private static final int LEVELS_AMOUNT = 10;
     // controls the delay between each tick in ms
     private final int DELAY = 25;
     // controls the size of the board
@@ -35,6 +37,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private boolean levelCompleted;
     private int levelCompletedDisplayCounter = 0;
     private int level = 1;
+    private boolean gameCompleted;
+
 
     public Board() {
         // set the game board size
@@ -66,11 +70,12 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         // give the player points for collecting coins
         collectCoins();
 
-
-        if (player.getScore() >= BASE_SCORE_TARGET * level) {
+        if (player.getScore() >= BASE_SCORE_TARGET * level && level + 1 == LEVELS_AMOUNT) {
+            gameCompleted = true;
+        } else if (player.getScore() >= BASE_SCORE_TARGET * level) {
             levelCompleted = true;
             levelCompletedDisplayCounter++;
-            if (levelCompletedDisplayCounter > 100) { // 2,5 seconds
+            if (levelCompletedDisplayCounter > 80) { // 2 seconds
                 levelCompleted = false;
                 player.setScore(0);
                 enemyDelayCounter = 0;
@@ -78,11 +83,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
                 level++;
                 enemies.add(new Enemy());
             }
-
         }
 
         enemyDelayCounter++;
-        if (enemyDelayCounter == 20 && !levelCompleted) {
+        if (enemyDelayCounter == 20 && !levelCompleted && !gameCompleted) {
             enemies.forEach(Enemy::tick);
             enemyDelayCounter = 0;
         }
@@ -117,9 +121,12 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         enemies.forEach(enemy -> enemy.draw(g, this));
 
         if (levelCompleted) {
-            drawLevelCompleted(g);
+            drawMessage(g, "Level completed");
         }
 
+        if (gameCompleted) {
+            drawMessage(g, "Game completed. You are awesome");
+        }
         // this smooths out animations on some systems
         Toolkit.getDefaultToolkit().sync();
     }
@@ -132,7 +139,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         // react to key down events
-        if (!levelCompleted) {
+        if (!levelCompleted && !gameCompleted) {
             player.keyPressed(e);
         }
     }
@@ -232,16 +239,14 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    private void drawLevelCompleted(Graphics g) {
-        // set the text to be displayed
-        String text = "Level completed !!!";
+    private void drawMessage(Graphics g, String text) {
         // we need to cast the Graphics to Graphics2D to draw nicer text
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         // set the text color and font
-        g2d.setColor(new Color(0, 255, 90));
+        g2d.setColor(new Color(16, 9, 219));
         g2d.setFont(new Font("Lato", Font.BOLD, 50));
         // draw the score in the center of the screen
         // https://stackoverflow.com/a/27740330/4655368
