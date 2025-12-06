@@ -102,7 +102,11 @@ public class Player {
     }
 
     public void subtractScore(int amount) {
-        score -= amount;
+        int newScore = score - amount;
+        if(newScore < 0){
+            newScore = 0;
+        }
+        score = newScore;
     }
 
     public Point getPos() {
